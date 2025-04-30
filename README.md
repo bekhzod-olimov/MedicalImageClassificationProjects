@@ -1,6 +1,6 @@
-# 🧠 Image Classification Research
+# 🧠 Image Classification In Medicine
 
-Welcome to the **Image Classification Research** repository — a modular and reproducible deep learning pipeline for image classification tasks using PyTorch. This repo includes training scripts, inference demos, and evaluation tools to accelerate your computer vision experiments.
+Welcome to the **Image Classification In Medicine** repository — a modular and reproducible deep learning pipeline for medical image classification tasks using PyTorch. This repo includes training scripts, inference demos, and evaluation tools to accelerate your computer vision experiments.
 
 ---
 
@@ -41,7 +41,7 @@ python -m ipykernel install --name "ENV_NAME" --user
 
 ## 📁 Available Datasets
 
-The links to the datasets can be found in the [fetch script](https://github.com/bekhzod-olimov/ImageClassificationSampleProjects/blob/13624441bbd226daf7fb3e3d56ed98fbbb230df2/data/fetch.py#L7).
+The links to the datasets can be found in the [fetch script](https://github.com/bekhzod-olimov/MedicalImageClassificationProjects/blob/7e97ebf29be8a2fb52d0e405921b08cf55683f12/data/fetch.py#L7).
  * Animals Dataset;
 
  * Apple Disease Dataset;
