@@ -42,23 +42,9 @@ python -m ipykernel install --name "ENV_NAME" --user
 ## 📁 Available Datasets
 
 The links to the datasets can be found in the [fetch script](https://github.com/bekhzod-olimov/MedicalImageClassificationProjects/blob/7e97ebf29be8a2fb52d0e405921b08cf55683f12/data/fetch.py#L7).
- * Animals Dataset;
+ * Covid Dataset;
 
- * Apple Disease Dataset;
-
- * Car Brands Dataset;
-
- * Dog Breeds Dataset;
- 
- * Facial Expressions Dataset;
-
- * Geo Scene Dataset;
-
- * Lentils Dataset;
-
- * Pet Disease Dataset;
-
- * Rice Leaf Disease Dataset
+ * Malaria Dataset;
 
  * The more is coming...
 
