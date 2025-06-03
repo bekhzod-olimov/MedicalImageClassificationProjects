@@ -20,7 +20,7 @@ class TrainValidation:
         self.device = device
         self.model = timm.create_model(model_name, pretrained=True, num_classes=len(classes)).to(self.device)
         self.loss_fn = torch.nn.CrossEntropyLoss()
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr)
+        self.optimizer = torch.optim.AdamW(self.model.parameters(), lr=lr)
         task_type = "multiclass" if len(classes) > 2 else "binary"
         self.f1_metric = torchmetrics.F1Score(task=task_type, num_classes=len(classes)).to(self.device)
 
