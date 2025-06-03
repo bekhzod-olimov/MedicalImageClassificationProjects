@@ -8,6 +8,7 @@ class DatasetDownloader:
             "malaria": "kaggle datasets download shahriar26s/malaria-detection",
             "covid": "kaggle datasets download jongallegos/dataset-for-cs-770",
             "marrow": "kaggle datasets download shuvokumarbasakbd/bone-marrow-cell-classification-colorized",
+            "fracture": "kaggle datasets download milyas137/fracatlas-fracture-classification-and-segmentation",
         }
 
     def download(self, ds_nomi=None):
