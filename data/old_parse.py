@@ -3,34 +3,36 @@ import torch
 import numpy as np
 from glob import glob
 from PIL import Image
-from sklearn.model_selection import train_test_split
 from torch.utils.data import random_split, Dataset, DataLoader
 
 torch.manual_seed(2025)
 
 class CustomDataset(Dataset):
-    def __init__(self, data_turgan_yolak, ds_nomi, rasm_yolaklari=None, rasm_javoblari=None, tfs=None, data_type=None, rasm_fayllari=[".png", ".jpg", ".jpeg", ".bmp"]):
-        
+    def __init__(self, data_turgan_yolak, ds_nomi, tfs=None, data_type=None, im_files=[".png", ".jpg", ".jpeg", ".bmp"]):
         
         self.tfs, self.ds_nomi = tfs, ds_nomi
         self.data_type = data_type
         self.data_turgan_yolak = data_turgan_yolak 
-        self.rasm_fayllari          = rasm_fayllari      
+        self.im_files          = im_files      
 
-        if rasm_yolaklari and rasm_javoblari: self.rasm_yolaklari = rasm_yolaklari; self.im_lbls = rasm_javoblari
-        else: self.get_root(); self.get_files()
-            
-        self.get_info()         
+        self.get_root(); self.get_files(); self.get_info()                
 
     def get_root(self): 
         if self.ds_nomi == "covid": self.root = f"{self.data_turgan_yolak}/{self.ds_nomi}/{self.ds_nomi}/Covid_Data_CS_770"
-        elif self.ds_nomi == "malaria": self.root = f"{self.data_turgan_yolak}/{self.ds_nomi}/{self.ds_nomi}/Malaria Dataset"                   
+        elif self.ds_nomi == "malaria": self.root = f"{self.data_turgan_yolak}/{self.ds_nomi}/{self.ds_nomi}/Malaria Dataset"        
+        elif self.ds_nomi == "geo_scene": self.root = f"{self.data_turgan_yolak}/{self.ds_nomi}/{self.ds_nomi}/GeoSceneNet16K"
+        elif self.ds_nomi == "lentils": self.root = f"{self.data_turgan_yolak}/{self.ds_nomi}/lentils/data"        
+        elif self.ds_nomi == "rice_leaf_disease": self.root = f"{self.data_turgan_yolak}/{self.ds_nomi}/rice_leaf_disease/Rice Leaf  Disease Dataset"
+        elif self.ds_nomi == "car_brands": self.root = f"{self.data_turgan_yolak}/{self.ds_nomi}/car_brands"
+        elif self.ds_nomi == "dog_breeds": self.root = f"{self.data_turgan_yolak}/{self.ds_nomi}/dog_breeds/Dog Breed Classification"        
+        elif self.ds_nomi == "apple_disease": self.root = f"{self.data_turgan_yolak}/{self.ds_nomi}/{self.ds_nomi}/{self.ds_nomi}/images"
+        elif self.ds_nomi == "animals": self.root = f"{self.data_turgan_yolak}/{self.ds_nomi}/{self.ds_nomi}/animal_dataset/animal_dataset/{self.ds_nomi}/{self.ds_nomi}"        
     
     def get_files(self): 
-        if self.ds_nomi in ["dog_breeds"]: self.im_paths = [path for im_file in self.rasm_fayllari for path in glob(f"{self.root}/*/*/*{im_file}")]        
-        elif self.ds_nomi in ["lentils", "apple_disease"]: self.im_paths = [path for im_file in self.rasm_fayllari for path in glob(f"{self.root}/*{im_file}")]
-        elif self.ds_nomi in ["malaria", "covid"]: self.im_paths = [path for im_file in self.rasm_fayllari for path in glob(f"{self.root}/{self.data_type}/*/*{im_file}")]
-        else: self.im_paths = [path for im_file in self.rasm_fayllari for path in glob(f"{self.root}/*/*{im_file}")] 
+        if self.ds_nomi in ["dog_breeds"]: self.im_paths = [path for im_file in self.im_files for path in glob(f"{self.root}/*/*/*{im_file}")]        
+        elif self.ds_nomi in ["lentils", "apple_disease"]: self.im_paths = [path for im_file in self.im_files for path in glob(f"{self.root}/*{im_file}")]
+        elif self.ds_nomi in ["malaria", "covid"]: self.im_paths = [path for im_file in self.im_files for path in glob(f"{self.root}/{self.data_type}/*/*{im_file}")]
+        else: self.im_paths = [path for im_file in self.im_files for path in glob(f"{self.root}/*/*{im_file}")] 
 
     def get_info(self):
 
@@ -77,19 +79,14 @@ class CustomDataset(Dataset):
         
             ds = cls(data_turgan_yolak=data_turgan_yolak, ds_nomi=ds_nomi, tfs=tfs)
 
-            rasm_yolaklari = ds.rasm_yolaklari
-            rasm_javoblari = [ds.cls_names[ds.get_class(rasm_yolagi)] for rasm_yolagi in rasm_yolaklari]
+            total_len = len(ds)
+            tr_len = int(total_len * split[0])
+            vl_len = int(total_len * split[1])
+            ts_len = total_len - (tr_len + vl_len)
 
-            train_paths, temp_paths, train_lbls, temp_lbls = train_test_split( rasm_yolaklari, rasm_javoblari, test_size=(split[1] + split[2]), stratify=rasm_javoblari, random_state=2025 )
-            
-            val_ratio = split[1] / (split[1] + split[2])
-            val_paths, test_paths, val_lbls, test_lbls = train_test_split( temp_paths, temp_lbls, test_size=(1 - val_ratio), stratify=temp_lbls, random_state=2025 )
+            tr_ds, vl_ds, ts_ds = random_split(ds, [tr_len, vl_len, ts_len])
 
-            tr_ds = cls(data_turgan_yolak=data_turgan_yolak, ds_nomi = ds_nomi, tfs=tfs, rasm_yolaklari = train_paths, rasm_javoblari = train_lbls)
-            vl_ds = cls(data_turgan_yolak=data_turgan_yolak, ds_nomi = ds_nomi, tfs=tfs, rasm_yolaklari = val_paths, rasm_javoblari = val_lbls)
-            ts_ds = cls(data_turgan_yolak=data_turgan_yolak, ds_nomi = ds_nomi, tfs=tfs, rasm_yolaklari = test_paths, rasm_javoblari = test_lbls)            
-
-            cls_names = ds.cls_names; cls_counts = [tr_ds.cls_counts, vl_ds.cls_counts, ts_ds.cls_counts]
+            cls_names = ds.cls_names; cls_counts = ds.cls_counts
 
         tr_dl = DataLoader(tr_ds, batch_size=bs, shuffle=True, num_workers=ns)
         val_dl = DataLoader(vl_ds, batch_size=bs, shuffle=False, num_workers=ns)
