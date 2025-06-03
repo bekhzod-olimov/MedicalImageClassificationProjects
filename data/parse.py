@@ -6,7 +6,8 @@ from PIL import Image
 from sklearn.model_selection import train_test_split
 from torch.utils.data import random_split, Dataset, DataLoader
 
-torch.manual_seed(2025)
+seed = 2025
+torch.manual_seed(seed)
 
 class CustomDataset(Dataset):
     def __init__(self, data_turgan_yolak, ds_nomi, rasm_yolaklari=None, rasm_javoblari=None, tfs=None, data_type=None, rasm_fayllari=[".png", ".jpg", ".jpeg", ".bmp"]):
@@ -24,20 +25,21 @@ class CustomDataset(Dataset):
 
     def get_root(self): 
         if self.ds_nomi == "covid": self.root = f"{self.data_turgan_yolak}/{self.ds_nomi}/{self.ds_nomi}/Covid_Data_CS_770"
-        elif self.ds_nomi == "malaria": self.root = f"{self.data_turgan_yolak}/{self.ds_nomi}/{self.ds_nomi}/Malaria Dataset"                   
+        elif self.ds_nomi == "malaria": self.root = f"{self.data_turgan_yolak}/{self.ds_nomi}/{self.ds_nomi}/Malaria Dataset"
+        elif self.ds_nomi == "blood_cell": self.root = f"{self.data_turgan_yolak}/{self.ds_nomi}/{self.ds_nomi}/BMC/bone_marrow_cell_dataset"
     
     def get_files(self): 
-        if self.ds_nomi in ["dog_breeds"]: self.im_paths = [path for im_file in self.rasm_fayllari for path in glob(f"{self.root}/*/*/*{im_file}")]        
-        elif self.ds_nomi in ["lentils", "apple_disease"]: self.im_paths = [path for im_file in self.rasm_fayllari for path in glob(f"{self.root}/*{im_file}")]
-        elif self.ds_nomi in ["malaria", "covid"]: self.im_paths = [path for im_file in self.rasm_fayllari for path in glob(f"{self.root}/{self.data_type}/*/*{im_file}")]
-        else: self.im_paths = [path for im_file in self.rasm_fayllari for path in glob(f"{self.root}/*/*{im_file}")] 
+        if self.ds_nomi in ["dog_breeds"]: self.rasm_yolaklari = [path for im_file in self.rasm_fayllari for path in glob(f"{self.root}/*/*/*{im_file}")]        
+        elif self.ds_nomi in ["lentils", "apple_disease"]: self.rasm_yolaklari = [path for im_file in self.rasm_fayllari for path in glob(f"{self.root}/*{im_file}")]
+        elif self.ds_nomi in ["malaria", "covid"]: self.rasm_yolaklari = [path for im_file in self.rasm_fayllari for path in glob(f"{self.root}/{self.data_type}/*/*{im_file}")]
+        else: self.rasm_yolaklari = [path for im_file in self.rasm_fayllari for path in glob(f"{self.root}/*/*{im_file}")] 
 
     def get_info(self):
 
         self.cls_names, self.cls_counts = {}, {}
         count = 0
-        for im_path in self.im_paths:
-            class_name = self.get_class(im_path)
+        for rasm_yolagi in self.rasm_yolaklari:
+            class_name = self.get_class(rasm_yolagi)
             if class_name not in self.cls_names:
                 self.cls_names[class_name] = count
                 self.cls_counts[class_name] = 1
@@ -48,18 +50,18 @@ class CustomDataset(Dataset):
         if self.ds_nomi in ["lentils", "apple_disease"]: return os.path.basename(path).split("_")[0]
         else: return os.path.dirname(path).split("/")[-1]
 
-    def __len__(self): return len(self.im_paths)
+    def __len__(self): return len(self.rasm_yolaklari)
 
     def __getitem__(self, idx):
         
-        im_path = self.im_paths[idx]
-        im = Image.open(im_path)
-        if im.mode != "RGB": im = im.convert("RGB")        
-        gt = self.cls_names[self.get_class(im_path)]
+        rasm_yolagi = self.rasm_yolaklari[idx]
+        rasm = Image.open(rasm_yolagi)
+        if rasm.mode != "RGB": rasm = rasm.convert("RGB")        
+        gt = self.cls_names[self.get_class(rasm_yolagi)]
 
-        if self.tfs: im = self.tfs(im)
+        if self.tfs: rasm = self.tfs(rasm)
 
-        return im, gt
+        return rasm, gt
 
     @classmethod
     def get_dls(cls, data_turgan_yolak, ds_nomi, tfs, bs, split=[0.8, 0.1, 0.1], ns=4):
@@ -80,10 +82,10 @@ class CustomDataset(Dataset):
             rasm_yolaklari = ds.rasm_yolaklari
             rasm_javoblari = [ds.cls_names[ds.get_class(rasm_yolagi)] for rasm_yolagi in rasm_yolaklari]
 
-            train_paths, temp_paths, train_lbls, temp_lbls = train_test_split( rasm_yolaklari, rasm_javoblari, test_size=(split[1] + split[2]), stratify=rasm_javoblari, random_state=2025 )
+            train_paths, temp_paths, train_lbls, temp_lbls = train_test_split( rasm_yolaklari, rasm_javoblari, test_size=(split[1] + split[2]), stratify=rasm_javoblari, random_state=seed )
             
             val_ratio = split[1] / (split[1] + split[2])
-            val_paths, test_paths, val_lbls, test_lbls = train_test_split( temp_paths, temp_lbls, test_size=(1 - val_ratio), stratify=temp_lbls, random_state=2025 )
+            val_paths, test_paths, val_lbls, test_lbls = train_test_split( temp_paths, temp_lbls, test_size=(1 - val_ratio), stratify=temp_lbls, random_state=seed )
 
             tr_ds = cls(data_turgan_yolak=data_turgan_yolak, ds_nomi = ds_nomi, tfs=tfs, rasm_yolaklari = train_paths, rasm_javoblari = train_lbls)
             vl_ds = cls(data_turgan_yolak=data_turgan_yolak, ds_nomi = ds_nomi, tfs=tfs, rasm_yolaklari = val_paths, rasm_javoblari = val_lbls)
