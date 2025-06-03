@@ -53,7 +53,7 @@ class StreamlitApp:
 
     def run(self):
         sample_ims_dir = "demo_ims"
-        ims_dir = "/home/bekhzod/Desktop/backup/image_classification_project_datasets"
+        ims_dir = "/home/bekhzod/Desktop/backup/image_classification_project_datasets/medical_image_classification"
 
         language = st.selectbox(
             self.LANGUAGES['en']['select_language'],
@@ -94,8 +94,9 @@ class StreamlitApp:
         sample_image_paths = glob(os.path.join(save_dir, "*.png"))
 
         if len(sample_image_paths) == 0:
-            ds = CustomDataset(ims_dir, data_type="val", ds_nomi=self.ds_nomi) if self.ds_nomi == "facial_expression" else CustomDataset(ims_dir, ds_nomi=self.ds_nomi)             
-            random_images = random.sample(ds.im_paths, 5)
+            data_type = "validation" if ds_nomi in ["covid", "marrow"] else "valid"              
+            ds = CustomDataset(ims_dir, data_type=data_type, ds_nomi=self.ds_nomi) if self.ds_nomi in ["malaria", "covid", "marrow"] else CustomDataset(ims_dir, ds_nomi=self.ds_nomi)            
+            random_images = random.sample(ds.rasm_yolaklari, 5)
             for idx, path in enumerate(random_images):
                 cls_name = os.path.basename(path).split("_")[0]  if self.ds_nomi in ["lentils", "apple_disease"] else os.path.basename(os.path.dirname(path))
                 with Image.open(path).convert("RGB") as im:
