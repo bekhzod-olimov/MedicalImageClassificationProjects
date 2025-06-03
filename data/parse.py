@@ -26,12 +26,13 @@ class CustomDataset(Dataset):
     def get_root(self): 
         if self.ds_nomi == "covid": self.root = f"{self.data_turgan_yolak}/{self.ds_nomi}/{self.ds_nomi}/Covid_Data_CS_770"
         elif self.ds_nomi == "malaria": self.root = f"{self.data_turgan_yolak}/{self.ds_nomi}/{self.ds_nomi}/Malaria Dataset"
+        elif self.ds_nomi == "marrow": self.root = f"{self.data_turgan_yolak}/{self.ds_nomi}/{self.ds_nomi}/dataset"        
         elif self.ds_nomi == "blood_cell": self.root = f"{self.data_turgan_yolak}/{self.ds_nomi}/{self.ds_nomi}/BMC/bone_marrow_cell_dataset"
     
     def get_files(self): 
         if self.ds_nomi in ["dog_breeds"]: self.rasm_yolaklari = [path for im_file in self.rasm_fayllari for path in glob(f"{self.root}/*/*/*{im_file}")]        
         elif self.ds_nomi in ["lentils", "apple_disease"]: self.rasm_yolaklari = [path for im_file in self.rasm_fayllari for path in glob(f"{self.root}/*{im_file}")]
-        elif self.ds_nomi in ["malaria", "covid"]: self.rasm_yolaklari = [path for im_file in self.rasm_fayllari for path in glob(f"{self.root}/{self.data_type}/*/*{im_file}")]
+        elif self.ds_nomi in ["malaria", "covid", "marrow"]: self.rasm_yolaklari = [path for im_file in self.rasm_fayllari for path in glob(f"{self.root}/{self.data_type}/*/*{im_file}")]
         else: self.rasm_yolaklari = [path for im_file in self.rasm_fayllari for path in glob(f"{self.root}/*/*{im_file}")] 
 
     def get_info(self):
@@ -66,8 +67,8 @@ class CustomDataset(Dataset):
     @classmethod
     def get_dls(cls, data_turgan_yolak, ds_nomi, tfs, bs, split=[0.8, 0.1, 0.1], ns=4):
         
-        if ds_nomi in ["malaria", "covid"]:
-            validation_dir = "validation" if ds_nomi in ["covid"] else "valid" 
+        if ds_nomi in ["malaria", "covid", "marrow"]:
+            validation_dir = "validation" if ds_nomi in ["covid", "marrow"] else "valid" 
 
             tr_ds = cls(data_turgan_yolak=data_turgan_yolak, data_type = "train", ds_nomi=ds_nomi, tfs=tfs)
             vl_ds = cls(data_turgan_yolak=data_turgan_yolak, data_type = validation_dir, ds_nomi=ds_nomi, tfs=tfs)
