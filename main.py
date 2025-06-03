@@ -86,6 +86,7 @@ def main():
         )
         trainer.run()
 
+        print(f"\nTraining is completed. Visualizing learning curves...")
         PlotLearningCurves(
             tr_losses=trainer.tr_losses,
             val_losses=trainer.val_losses,
@@ -96,13 +97,16 @@ def main():
             save_dir=args.learning_curve_dir,
             ds_nomi=args.dataset_name
         ).visualize()
+        print(f"\nLearning curves are saved in {args.learning_curve_dir}.")
 
+
+        print(f"\nInference is going to start with the pre-trained model...")
         model = timm.create_model(
             model_name=args.model_name,
             pretrained=True,
             num_classes=len(classes)
         ).to(device)
-        model.load_state_dict(torch.load(f"{args.save_dir}/{args.dataset_name}_best_model.pth"))
+        model.load_state_dict(torch.load(f"{args.save_dir}/{args.dataset_name}_best_model.pth"))       
 
         inference_visualizer = ModelInferenceVisualizer(
             model=model,
@@ -115,5 +119,6 @@ def main():
             im_size=args.image_size
         )
         inference_visualizer.infer_and_visualize(ts_dl, num_images=20, rows=4)
+        print(f"\nInference results are saved in {args.outputs_dir}.")
 
 if __name__ == "__main__": main()
