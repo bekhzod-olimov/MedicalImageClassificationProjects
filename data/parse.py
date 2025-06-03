@@ -28,6 +28,7 @@ class CustomDataset(Dataset):
         elif self.ds_nomi == "malaria": self.root = f"{self.data_turgan_yolak}/{self.ds_nomi}/{self.ds_nomi}/Malaria Dataset"
         elif self.ds_nomi == "marrow": self.root = f"{self.data_turgan_yolak}/{self.ds_nomi}/{self.ds_nomi}/dataset"        
         elif self.ds_nomi == "blood_cell": self.root = f"{self.data_turgan_yolak}/{self.ds_nomi}/{self.ds_nomi}/BMC/bone_marrow_cell_dataset"
+        elif self.ds_nomi == "fracture": self.root = f"{self.data_turgan_yolak}/{self.ds_nomi}/{self.ds_nomi}/FracAtlas/images"
     
     def get_files(self): 
         if self.ds_nomi in ["dog_breeds"]: self.rasm_yolaklari = [path for im_file in self.rasm_fayllari for path in glob(f"{self.root}/*/*/*{im_file}")]        
