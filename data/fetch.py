@@ -6,7 +6,9 @@ class DatasetDownloader:
         self.save_dir = save_dir
         self.available_datasets = {
             "malaria": "kaggle datasets download shahriar26s/malaria-detection",
-            "covid": "kaggle datasets download jongallegos/dataset-for-cs-770"
+            "covid": "kaggle datasets download jongallegos/dataset-for-cs-770",
+            "marrow": "kaggle datasets download shuvokumarbasakbd/bone-marrow-cell-classification-colorized",
+            "blood_cell": "kaggle datasets download donajui/bone-marrow-cell-classification",            
         }
 
     def download(self, ds_nomi=None):
