@@ -9,6 +9,7 @@ class DatasetDownloader:
             "covid": "kaggle datasets download jongallegos/dataset-for-cs-770",
             "marrow": "kaggle datasets download shuvokumarbasakbd/bone-marrow-cell-classification-colorized",
             "fracture": "kaggle datasets download milyas137/fracatlas-fracture-classification-and-segmentation",
+            "skin": "kaggle datasets download murtozalikhon/skin-cancer-classification",
         }
 
     def download(self, ds_nomi=None):

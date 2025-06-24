@@ -32,7 +32,8 @@ def parse_args():
 def main():
     args = parse_args()    
     # ds_nomlari = ["covid", "malaria"]
-    ds_nomlari = ["fracture"]
+    # ds_nomlari = ["fracture"]
+    ds_nomlari = ["skin"]
     # ds_nomlari = ["covid"]    
 
     for ds_nomi in ds_nomlari:
