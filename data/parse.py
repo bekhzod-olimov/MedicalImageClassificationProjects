@@ -34,7 +34,7 @@ class CustomDataset(Dataset):
     def get_files(self): 
         if self.ds_nomi in ["dog_breeds"]: self.rasm_yolaklari = [path for im_file in self.rasm_fayllari for path in glob(f"{self.root}/*/*/*{im_file}")]        
         elif self.ds_nomi in ["lentils", "apple_disease"]: self.rasm_yolaklari = [path for im_file in self.rasm_fayllari for path in glob(f"{self.root}/*{im_file}")]
-        elif self.ds_nomi in ["malaria", "covid", "marrow"]: self.rasm_yolaklari = [path for im_file in self.rasm_fayllari for path in glob(f"{self.root}/{self.data_type}/*/*{im_file}")]
+        elif self.ds_nomi in ["malaria", "covid", "marrow", "skin"]: self.rasm_yolaklari = [path for im_file in self.rasm_fayllari for path in glob(f"{self.root}/{self.data_type}/*/*{im_file}")]
         else: self.rasm_yolaklari = [path for im_file in self.rasm_fayllari for path in glob(f"{self.root}/*/*{im_file}")] 
 
     def get_info(self):
