@@ -33,8 +33,8 @@ def main():
     args = parse_args()    
     # ds_nomlari = ["covid", "malaria"]
     # ds_nomlari = ["fracture"]
-    ds_nomlari = ["skin"]
-    # ds_nomlari = ["covid"]    
+    ds_nomlari = ["skin", "covid", "malaria", "fracture", "marrow"]
+        
 
     for ds_nomi in ds_nomlari:
 
@@ -63,42 +63,42 @@ def main():
         print(f"Train data {len(tr_dl)} ta, validation data {len(val_dl)} ta, test data {len(ts_dl)} ta mini-batchlardan iborat.")    
         print(f"Datasetdagi klasslar -> {classes}")    
 
-        # vis = Visualization(
-        #     vis_datas=[tr_dl, val_dl, ts_dl],
-        #     n_ims=20,
-        #     rows=4,
-        #     cmap="rgb",
-        #     vis_dir=args.vis_dir,
-        #     ds_nomi=args.dataset_name,
-        #     cls_names=list(classes.keys()),
-        #     cls_counts=cls_counts
-        # )
-        # vis.analysis(); vis.pie_chart(); vis.visualization()
+        vis = Visualization(
+            vis_datas=[tr_dl, val_dl, ts_dl],
+            n_ims=20,
+            rows=4,
+            cmap="rgb",
+            vis_dir=args.vis_dir,
+            ds_nomi=args.dataset_name,
+            cls_names=list(classes.keys()),
+            cls_counts=cls_counts
+        )
+        vis.analysis(); vis.pie_chart(); vis.visualization()
 
-        # trainer = TrainValidation(
-        #     model_name=args.model_name,
-        #     device=device,
-        #     save_prefix=args.dataset_name,
-        #     classes=classes,
-        #     patience=args.patience,
-        #     tr_dl=tr_dl,
-        #     val_dl=val_dl,
-        #     dev_mode=False
-        # )
-        # trainer.run()
+        trainer = TrainValidation(
+            model_name=args.model_name,
+            device=device,
+            save_prefix=args.dataset_name,
+            classes=classes,
+            patience=args.patience,
+            tr_dl=tr_dl,
+            val_dl=val_dl,
+            dev_mode=False
+        )
+        trainer.run()
 
         print(f"\nTraining process is completed. Visualizing learning curves...")
-        # PlotLearningCurves(
-        #     tr_losses=trainer.tr_losses,
-        #     val_losses=trainer.val_losses,
-        #     tr_accs=trainer.tr_accs,
-        #     val_accs=trainer.val_accs,
-        #     tr_f1s=trainer.tr_f1s,
-        #     val_f1s=trainer.val_f1s,
-        #     save_dir=args.learning_curve_dir,
-        #     ds_nomi=args.dataset_name
-        # ).visualize()
-        # print(f"\nLearning curves are saved in {args.learning_curve_dir} dir.")
+        PlotLearningCurves(
+            tr_losses=trainer.tr_losses,
+            val_losses=trainer.val_losses,
+            tr_accs=trainer.tr_accs,
+            val_accs=trainer.val_accs,
+            tr_f1s=trainer.tr_f1s,
+            val_f1s=trainer.val_f1s,
+            save_dir=args.learning_curve_dir,
+            ds_nomi=args.dataset_name
+        ).visualize()
+        print(f"\nLearning curves are saved in {args.learning_curve_dir} dir.")
 
 
         print(f"\nInference process is going to start with the pre-trained model...")
