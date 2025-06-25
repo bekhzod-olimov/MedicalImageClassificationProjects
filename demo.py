@@ -161,8 +161,5 @@ if __name__ == "__main__":
     ds_nomi = st.sidebar.selectbox("Choose Dataset", options=available_datasets, index=0)
     model_name = st.sidebar.text_input("Model name", value="rexnet_150")    
 
-    app = StreamlitApp(
-        ds_nomi=ds_nomi,
-        model_name=model_name        
-    )
+    app = StreamlitApp( ds_nomi=ds_nomi, model_name=model_name )
     app.run()
