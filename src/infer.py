@@ -41,30 +41,37 @@ class ModelInferenceVisualizer:
         tensor = tensor.permute(1, 2, 0)  
         return (tensor.cpu().numpy() * 255).astype(np.uint8)
 
-    def plot_value_array(self, logits, gt, class_names):
-        
+
+    def plot_value_array(self, logits, gt, class_names, ax=None):
         probs = torch.nn.functional.softmax(logits, dim=1)
         pred_class = torch.argmax(probs, dim=1)
-        
-        plt.grid(visible=True)
-        plt.xticks(range(len(class_names)), class_names, rotation='vertical')
-        plt.yticks(np.arange(0.0, 1.1, 0.1))
-        bars = plt.bar(range(len(class_names)), [p.item() for p in probs[0]], color="#777777")
-        plt.ylim([0, 1])
-        if isinstance(gt, str):
-            bars[pred_class].set_color('green') if pred_class.item() == class_names[gt] else bars[pred_class].set_color('red')            
-        else:
-            bars[pred_class].set_color('green') if pred_class.item() == gt else bars[pred_class].set_color('red')
-        
-        # Save figure to a buffer
-        import io
-        buf = io.BytesIO()
-        plt.tight_layout()
-        plt.savefig(buf, format='png')
-        plt.close()  # Close the figure after saving it to free memory
-        buf.seek(0)
 
-        return buf 
+        # Use existing axes if provided
+        if ax is None: ax = plt.gca()
+        
+        ax.grid(visible=True)
+        ax.set_xticks(range(len(class_names)))
+        ax.set_xticklabels(class_names, rotation='vertical')
+        ax.set_yticks(np.arange(0.0, 1.1, 0.1))
+        bars = ax.bar(range(len(class_names)), [p.item() for p in probs[0]], color="#777777")
+        ax.set_ylim([0, 1])
+        
+        # Handle ground truth comparison
+        if isinstance(gt, str):
+            gt_idx = class_names.index(gt)  # Convert string GT to index
+            bars[pred_class].set_color('green' if pred_class == gt_idx else 'red')
+        else:
+            bars[pred_class].set_color('green' if pred_class == gt else 'red')
+        
+        # Only save/close for standalone use (demo mode)
+        if ax is None:
+            import io
+            buf = io.BytesIO()
+            plt.tight_layout()
+            plt.savefig(buf, format='png')
+            plt.close()
+            buf.seek(0)
+            return buf
 
     def generate_cam_visualization(self, image_tensor):
         
@@ -99,8 +106,9 @@ class ModelInferenceVisualizer:
 
     def infer_and_visualize(self, test_dl, num_images=5, rows=2, demo=False):
         
+        os.makedirs(self.outputs_dir, exist_ok = True)
         preds, images, lbls, logitss = [], [], [], []
-        accuracy, count = 0, 1
+        accuracy = 0
         with torch.no_grad():
 
             for idx, batch in tqdm(enumerate(test_dl), desc="Inference"):
@@ -121,6 +129,8 @@ class ModelInferenceVisualizer:
         print(f"F1 score of the model on the test data -> {(self.f1_metric.compute().item()):.3f}") 
 
         plt.figure(figsize=(20, 10))
+        count = 1
+
         indices = [random.randint(0, len(images) - 1) for _ in range(num_images)]
         for idx, index in enumerate(indices):
             # Convert and denormalize image
@@ -128,7 +138,7 @@ class ModelInferenceVisualizer:
             pred_idx = preds[index]
             gt_idx = lbls[index]
 
-            # Display image
+            # Subplot 1: Image + GradCAM
             plt.subplot(rows, 2 * num_images // rows, count)
             count += 1
             plt.imshow(im, cmap="gray")
@@ -137,25 +147,26 @@ class ModelInferenceVisualizer:
             # GradCAM visualization
             grayscale_cam = self.generate_cam_visualization(images[index])
             visualization = show_cam_on_image(im / 255, grayscale_cam, image_weight=0.4, use_rgb=True)
-            plt.imshow(cv2.resize(visualization, (self.im_size, self.im_size), interpolation=cv2.INTER_LINEAR), alpha=0.7, cmap='jet')
+            plt.imshow(visualization, alpha=0.7)
             plt.axis("off")
 
-            # Prediction probability array
+            # Subplot 2: Class probabilities
             logits = logitss[index]
             if logits.dim() == 1:  # If 1D, add a batch dimension
-                logits = logits.unsqueeze(0)
+                logits = logits.unsqueeze(0)            
             plt.subplot(rows, 2 * num_images // rows, count)
             count += 1
-            bars = self.plot_value_array(logits=logits, gt=gt_idx, class_names=self.class_names)
+            ax = plt.gca()  # Get current axes
+            self.plot_value_array(logits=logits, gt=gt_idx, class_names=self.class_names, ax=ax)
 
             # Title with GT and Prediction
             if self.class_names:
                 gt_name = self.class_names[gt_idx]
-                pred_name = self.class_names[pred_idx]
+                pred_name = self.class_names[pred_idx]                
                 color = "green" if gt_name == pred_name else "red"
                 plt.title(f"GT -> {gt_name} ; PRED -> {pred_name}", color=color)
         
-        os.makedirs(self.outputs_dir, exist_ok = True)
+        plt.tight_layout()        
         plt.savefig(f"{self.outputs_dir}/{self.ds_nomi}_model_performance_analysis.png")
 
         # Plot confusion matrix
