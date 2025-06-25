@@ -48,6 +48,10 @@ The links to the datasets can be found in the [fetch script](https://github.com/
 
  * Marrow Dataset;
 
+ * Fracture Dataset;
+
+ * Skin Cancer Dataset;
+
  * The more is coming...
 
  ## 🛠️ Manual to Use This Repo
